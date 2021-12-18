@@ -15,11 +15,6 @@ type
 
   TqBitAPI = class(TObject)
   private
-
-    function qBPost(MethodPath: string; ReqST, ResST: TStringStream; ContentType: string): integer; overload; virtual;
-    function qBPost(MethodPath: string; var Body: string): integer; overload; virtual;
-    function qBPost(MethodPath: string): integer; overload; virtual;
-
   protected
     FSID: string;
     FHostPath: string;
@@ -27,9 +22,13 @@ type
     FPassword: string;
     FDuration: cardinal;
     FLastHTTPStatus: integer;
+
   public
 
     constructor Create(HostPath: string); overload;
+    function qBPost(MethodPath: string; ReqST, ResST: TStringStream; ContentType: string): integer; overload; virtual;
+    function qBPost(MethodPath: string; var Body: string): integer; overload; virtual;
+    function qBPost(MethodPath: string): integer; overload; virtual;
 
         ///////////////////////////////////////////////////////////////////////////////////////
         // FROM: https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1) //
@@ -323,12 +322,14 @@ begin
     ReqST.Position := 0;
     ResST.Position := 0;
     Http := THTTPClient.Create;
-    Http.UserAgent := 'qBittorrent Web API for Delphi - L.Meyer - qBit4Delphi@ea4d.com';
+    Http.UserAgent := 'qBittorrent WebAPI for Delphi (qBit4Delphi) - Laurent Meyer - qBit4Delphi@ea4d.com';
     Http.CustomHeaders['Content-type'] := ContentType;
     Http.CustomHeaders['Referer'] := FHostPath;
     Http.CookieManager.Clear;
     if FSID <>'' then Http.CookieManager.AddServerCookie('SID='+FSID, FHostPath);
-    Http.SendTimeout := 2000;
+    Http.ConnectionTimeout := 1000;
+    Http.SendTimeout := 1000;
+    Http.ResponseTimeout := 2000;
     var url := Format('%s/api/v2%s',[FHostPath, MethodPath]);
     R := Http.Post(url, ReqST, ResST);
     FLastHTTPStatus := R.StatusCode;
@@ -427,7 +428,7 @@ end;
 function TqBitAPI.SetPreferences(Prefs: TqBitPreferencesType): boolean;
 begin
   FDuration := GetTickCount;
-  var Body := 'json='+Prefs.ToJson;
+  var Body := 'json='+URLEncode(Prefs.ToJson);
   Result := qBPost('/app/setPreferences', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
@@ -970,7 +971,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(URLEncode(NewTorrentUrls.Fsavepath));
+    SS.WriteString(NewTorrentUrls.Fsavepath);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -978,7 +979,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(URLEncode(NewTorrentUrls.Fcookie));
+    SS.WriteString(NewTorrentUrls.Fcookie);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -986,7 +987,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(URLEncode(NewTorrentUrls.Frename));
+    SS.WriteString(NewTorrentUrls.Frename);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -994,7 +995,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(URLEncode(NewTorrentUrls.Fcategory));
+    SS.WriteString(NewTorrentUrls.Fcategory);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -1108,7 +1109,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(URLEncode(NewTorrentFile.Fsavepath));
+    SS.WriteString(NewTorrentFile.Fsavepath);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -1116,7 +1117,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(URLEncode(NewTorrentFile.Frename));
+    SS.WriteString(NewTorrentFile.Frename);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -1124,7 +1125,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(URLEncode(NewTorrentFile.Fcategory));
+    SS.WriteString(NewTorrentFile.Fcategory);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -1148,7 +1149,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(URLEncode((NewTorrentFile.FcontentLayout)));
+    SS.WriteString((NewTorrentFile.FcontentLayout));
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -1175,8 +1176,11 @@ begin
     SS.WriteString(NewTorrentFile.FdlLimit.ToString);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
+    SS.WriteString(#$D#$A);
     SS.WriteString('Content-Disposition: form-data; name="upLimit"');
+    SS.WriteString(#$D#$A);
     SS.WriteString('');
+    SS.WriteString(#$D#$A);
     SS.WriteString(NewTorrentFile.FupLimit.ToString);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary+'--');
