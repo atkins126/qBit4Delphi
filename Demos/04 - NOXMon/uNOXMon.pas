@@ -59,11 +59,13 @@ begin
       Th.Resume;
     end;
     Srvs.Free;
-  end;
+  end else
+    Close;
 end;
 
 procedure TNOXMonDlg.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  if not Assigned(ThList) then Exit;
   for var Th in ThList do
   begin
     TH.Terminate;
@@ -132,7 +134,7 @@ begin
   while not Terminated do
   begin
     var tme := GetTickCount;
-    var U := qB.GetMainData(qBMainTh.Frid); // get differebtial data from last call
+    var U := qB.GetMainData(qBMainTh.Frid); // get differential data from last call
     qBMainTh.Merge(U); // Merge to qBMain to be uodated to date
     U.Free;
     Synchronize(
@@ -145,7 +147,7 @@ begin
       (GetTickCount - Tme < qBMainTh.Fserver_state.Frefresh_interval)
       and (not Terminated)
     do
-      Sleep(100);
+      Sleep(250);
   end;
   qBMainTh.Free;
   qB.Free;
