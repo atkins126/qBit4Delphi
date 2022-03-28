@@ -1,10 +1,10 @@
 # qBit4Delphi
-qBit4Delphi is an open-source project created by Laurent Meyer to embed qBittorent WEBui API in applications developed with [Delphi VCL/FMX](https://www.embarcadero.com/products/delphi/starter).
+qBit4Delphi is an open-source project created by Laurent Meyer to embed qBittorent WEBui API in applications developed with [Delphi VCL/FMX](https://www.embarcadero.com/products/delphi/starter). Contains also TTorrentReader, a torrent file parser (UTF8 BEncode, Format: V1 & V2 and Hybrid as V2).
 
 Official API Documentation: https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
 
 It requires no DLL, nor third-party extension. This is pure Pascal VCL/FMX. BUT before you try to compile qBit4Delphi, some embarcadero JSON .pas units need to be patched (bugs / features). The procedure to do so is provided below. 
-This API is developed with Delphi Community Edition 10.4 but also tested with Sydney 10.4.2 and Alexandria 11.0 (JSON patches provided) 
+This API is developed with Delphi Community Edition 10.4 but also tested with Sydney 10.4.2, Alexandria 11.0 and 11.1 (JSON patches provided) 
 
 Alternatively, qNOXify is a thin client for qBittorent/NOX, it is a work in progress and has now its own repository : [qNOXify](https://github.com/bnzbnz/qNOXify)
 

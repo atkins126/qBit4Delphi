@@ -6,13 +6,22 @@
         <Projects Include="01 - Simple\Simple.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="02 - SimpleThreaded\SimpleThreaded.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="03 - FMXReport\FMXReport.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="02 - SimpleThreaded\SimpleThreaded.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="04 - NOXMon\NOXMon.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\Patcher\Patcher.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="05 - TorrentReaderDemo\TorrentReaderDemo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="06 -VNStatDemo\vnStatDemo.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -32,15 +41,6 @@
     <Target Name="Simple:Make">
         <MSBuild Projects="01 - Simple\Simple.dproj" Targets="Make"/>
     </Target>
-    <Target Name="SimpleThreaded">
-        <MSBuild Projects="02 - SimpleThreaded\SimpleThreaded.dproj"/>
-    </Target>
-    <Target Name="SimpleThreaded:Clean">
-        <MSBuild Projects="02 - SimpleThreaded\SimpleThreaded.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="SimpleThreaded:Make">
-        <MSBuild Projects="02 - SimpleThreaded\SimpleThreaded.dproj" Targets="Make"/>
-    </Target>
     <Target Name="FMXReport">
         <MSBuild Projects="03 - FMXReport\FMXReport.dproj"/>
     </Target>
@@ -49,6 +49,15 @@
     </Target>
     <Target Name="FMXReport:Make">
         <MSBuild Projects="03 - FMXReport\FMXReport.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SimpleThreaded">
+        <MSBuild Projects="02 - SimpleThreaded\SimpleThreaded.dproj"/>
+    </Target>
+    <Target Name="SimpleThreaded:Clean">
+        <MSBuild Projects="02 - SimpleThreaded\SimpleThreaded.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SimpleThreaded:Make">
+        <MSBuild Projects="02 - SimpleThreaded\SimpleThreaded.dproj" Targets="Make"/>
     </Target>
     <Target Name="NOXMon">
         <MSBuild Projects="04 - NOXMon\NOXMon.dproj"/>
@@ -59,14 +68,41 @@
     <Target Name="NOXMon:Make">
         <MSBuild Projects="04 - NOXMon\NOXMon.dproj" Targets="Make"/>
     </Target>
+    <Target Name="Patcher">
+        <MSBuild Projects="..\Patcher\Patcher.dproj"/>
+    </Target>
+    <Target Name="Patcher:Clean">
+        <MSBuild Projects="..\Patcher\Patcher.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Patcher:Make">
+        <MSBuild Projects="..\Patcher\Patcher.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="TorrentReaderDemo">
+        <MSBuild Projects="05 - TorrentReaderDemo\TorrentReaderDemo.dproj"/>
+    </Target>
+    <Target Name="TorrentReaderDemo:Clean">
+        <MSBuild Projects="05 - TorrentReaderDemo\TorrentReaderDemo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="TorrentReaderDemo:Make">
+        <MSBuild Projects="05 - TorrentReaderDemo\TorrentReaderDemo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="vnStatDemo">
+        <MSBuild Projects="06 -VNStatDemo\vnStatDemo.dproj"/>
+    </Target>
+    <Target Name="vnStatDemo:Clean">
+        <MSBuild Projects="06 -VNStatDemo\vnStatDemo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="vnStatDemo:Make">
+        <MSBuild Projects="06 -VNStatDemo\vnStatDemo.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="Simple;SimpleThreaded;FMXReport;NOXMon"/>
+        <CallTarget Targets="Simple;FMXReport;SimpleThreaded;NOXMon;Patcher;TorrentReaderDemo;vnStatDemo"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Simple:Clean;SimpleThreaded:Clean;FMXReport:Clean;NOXMon:Clean"/>
+        <CallTarget Targets="Simple:Clean;FMXReport:Clean;SimpleThreaded:Clean;NOXMon:Clean;Patcher:Clean;TorrentReaderDemo:Clean;vnStatDemo:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Simple:Make;SimpleThreaded:Make;FMXReport:Make;NOXMon:Make"/>
+        <CallTarget Targets="Simple:Make;FMXReport:Make;SimpleThreaded:Make;NOXMon:Make;Patcher:Make;TorrentReaderDemo:Make;vnStatDemo:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
