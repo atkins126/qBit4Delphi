@@ -1,5 +1,4 @@
 unit uqBitAPI;
-
 ///  Author: Laurent Meyer
 ///  Contact: qBit4Delphi@ea4d.com
 ///  API v2.8.3 + Hidden/Missing Fields
@@ -7,12 +6,9 @@ unit uqBitAPI;
 ///  https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
 ///
 ///  ToDo : RSS & Search
-
 interface
-uses uqBitAPITypes, windows, classes;
-
+uses uqBitAPITypes, windows, classes, LMRutils;
 type
-
   TqBitAPI = class(TObject)
   private
   protected
@@ -31,280 +27,188 @@ type
     function qBPost(MethodPath: string; ReqST, ResST: TStringStream; ContentType: string): integer; overload; virtual;
     function qBPost(MethodPath: string; var Body: string): integer; overload; virtual;
     function qBPost(MethodPath: string): integer; overload; virtual;
-
         ///////////////////////////////////////////////////////////////////////////////////////
         // FROM: https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1) //
         ///////////////////////////////////////////////////////////////////////////////////////
-
   // Authentication :
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#login
     function Login(Username, Password: string): Boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#logout
     function Logout: Boolean; virtual;
-
   // Application :
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-application-version
     function GetVersion: string; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-api-version
     function GetAPIVersion: string; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-build-info
     function GetBuildInfo: TqBitBuildInfoType; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#shutdown-application
     function Shutdown: Boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-application-preferences
     function GetPreferences: TqBitPreferencesType; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-application-preferences
     function SetPreferences(Prefs: TqBitPreferencesType): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-default-save-path
     function GetDefaultSavePath: string; virtual;
-
     // Log :
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#log
     function GetLog(LastKnownId: int64 = -1; Normal: boolean = false;
               Info: boolean = false; Warning: boolean = true; Critical: boolean = true) : TqBitLogsType; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-peer-log
     function GetPeerLog(LastKnownId: int64 = -1): TqBitPeerLogsType; virtual;
-
   // Sync :
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-main-data
     function GetMainData(Rid: int64 = 0): TqBitMainDataType; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-torrent-peers-data
     function GetTorrentPeersData(Hash: string; Rid: int64 = 0): TqBitTorrentPeersDataType; virtual;
-
   // Transfer :
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-global-transfer-info
     function GetGlobalTransferInfo: TqBitGlobalTransferInfoType; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-alternative-speed-limits-state
     function GetAlternativeSpeedLimitsState: boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#toggle-alternative-speed-limits
     function ToggleAlternativeSpeedLimits: boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-global-download-limit
     function GetGlobalDownloadLimit: integer; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-global-download-limit
     function SetGlobalDownloadLimit( GlobalDownloadLimit: integer): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-global-upload-limit
     function GetGlobalUploadLimit: integer; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-global-upload-limit
     function SetGlobalUploadLimit(GlobalUploafimit: integer): boolean;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#ban-peers
     function BanPeers(PeerListStr: string): boolean; virtual;
-
   // Torrent management :
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-torrent-list
     function GetTorrentList(TorrentListRequest : TqBitTorrentListRequestType): TqBitTorrentListType; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-torrent-generic-properties
     function GetTorrentGenericProperties(Hash: string): TqBitTorrentInfoType; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-torrent-trackers
     function GetTorrentTrackers(Hash: string): TqBitTrackersType; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-torrent-web-seeds
     function GetTorrentWebSeeds(Hash: string): TqBitWebSeedsType; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-torrent-contents
     function GetTorrentContents(Hash: string; Indexes: string = ''): TqBitContentsType;  virtual;
-
         // https://github.co m/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-torrent-pieces-states
     function GetTorrentPiecesStates(Hash: string): TqBitPiecesStatesType; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#pause-torrents
     function PauseTorrents(Hashes: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#resume-torrents
     function ResumeTorrents(Hashes: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#delete-torrents
     function DeleteTorrents(Hashes: string; DeleteFiles: boolean = False): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#recheck-torrents
     function RecheckTorrents(Hashes: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#reannounce-torrents
     function ReannounceTorrents(Hashes: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#add-new-torrent
     function AddNewTorrentUrls(NewTorrentUrls: TqBitNewTorrentUrlsType): boolean; virtual;
+        // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#add-new-torrent
     function AddNewTorrentFile(NewTorrentFile: TqBitNewTorrentFileType): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#add-trackers-to-torrent
     function AddTrackersToTorrent(Hash: string; Urls: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#edit-trackers
     function EditTracker(Hash, OrigUrl, NewUrl: string): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#remove-trackers
     function RemoveTrackers(Hash, Urls: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#add-peers
     function AddPeers(Hashes, Peers: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#increase-torrent-priority
     function IncreaseTorrentPriority(Hashes: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#decrease-torrent-priority
     function DecreaseTorrentPriority(Hashes: string): boolean; overload; virtual;
-
         // lient-tunnel.canalplus.com/resiliation-abonnement/selection-motif?contractId=1
     function MaximalTorrentPriority(Hashes: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#minimal-torrent-priority
     function MinimalTorrentPriority(Hashes: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-file-priority
-    function SetfilesPriority(Hash, Ids: string; Priority: integer): boolean; overload; virtual;
-
+    function SetFilePriority(Hash, Ids: string; Priority: integer): boolean; overload; virtual;
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-torrent-download-limit
     function GetTorrentDownloadLimit(Hashes: string): TqBitTorrentSpeedsLimitType; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-torrent-download-limit
     function SetTorrentDownloadLimit(Hashes: string; Limit: integer): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-torrent-share-limit
     function SetTorrentShareLimit(Hashes: string; RatioLimit: double; SeedingTimeLimit: integer): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-torrent-upload-limit
     function GetTorrentUploadLimit(Hashes: string): TqBitTorrentSpeedsLimitType; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-torrent-upload-limit
     function SetTorrentUploadLimit(Hashes: string; Limit: integer): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-torrent-location
     function SetTorrentLocation(Hashes, Location: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-torrent-name
     function SetTorrentName(Hash, Name: string): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-torrent-category
     function SetTorrentCategory(Hashes, Category: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-all-categories
     function GetAllCategories: TqBitCategoriesType; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#add-new-category
     function AddNewCategory(Category, SavePath: string): boolean;  virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#edit-category
     function EditCategory(Category, SavePath: string): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#remove-categories
     function RemoveCategories(Categories: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#add-torrent-tags
     function AddTorrentTags(Hashes, Tags: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#remove-torrent-tags
     function RemoveTorrentTags(Hashes, Tags: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-all-tags
     function GetAllTags: TqBitTagsType; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#create-tags
     function CreateTags(Tags: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#delete-tags
     function DeleteTags(Tags: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-automatic-torrent-management
     function SetAutomaticTorrentManagement(Hashes: string; Enable: boolean): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#toggle-sequential-download
     function ToggleSequentialDownload(Hashes: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-firstlast-piece-priority
     function SetFirstLastPiecePriority(Hashes: string): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-force-start
     function SetForceStart(Hashes: string; value: boolean): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-super-seeding
     function SetSuperSeeding(Hashes: string; value: boolean): boolean; overload; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#rename-file
     function RenameFile(Hash, OldPath, NewPath: string): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#rename-folder
     function RenameFolder(Hash, OldPath, NewPath: string): boolean; virtual;
-
   // RSS : EXPERIMENTAL DO NOT USE
   // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#rss-experimental
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#add-folder
     function RSSAddFolder(Path: string): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#add-feed
     function RSSAddFeed(Url, Path: string): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#remove-item
     function RSSRemoveItem(Path: string): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#move-item
     function RSSMoveItem(ItemPath, DestPath: string): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-all-items
     function RSSGetAllItems(WithData: boolean): TqBitRSSAllItemsType; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#mark-as-read
     function RSSMarkAsRead(ItemPath, ArticleId: string): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#refresh-item
     function RSSRefreshItem(ItemPath: string): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-auto-downloading-rule
     function RSSSetAutoDownloadingRules(RuleName: string; RuleDef: TqBitRSSRuleType): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#rename-auto-downloading-rule
     function RSSRenameAutoDownloadingRules(RuleName, NewRuleName: string): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#remove-auto-downloading-rule
      function RSSRemoveAutoDownloadingRules(RuleName: string): boolean; virtual;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-all-auto-downloading-rules
     function RSSGetAllAutoDownloadingRules: TqBitAutoDownloadingRulesType;
-
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-all-articles-matching-a-rule
     function RSSGetMatchingArticles(RuleName: string): TqBitRSSArticles;
-
   // Search :
   // Will be implemented later
-
   end;
-
 implementation
-
 uses REST.Json, NetEncoding, SysUtils, wininet, zLib, System.Net.URLClient,
      System.Net.HttpClient, System.Net.HttpClientComponent, System.Hash;
-
 const
   bstr: array[boolean] of string = ('false','true');
-
 function URLEncode(Url: string): string; inline;
 begin
   Result := TNetEncoding.URL.Encode(Url);
 end;
-
 constructor TqBitAPI.Create(HostPath: string);
 begin
   inherited Create;
@@ -312,10 +216,9 @@ begin
   FHostPath := HostPath;
   FHTTPConnectionTimeout := 1000;
   FHTTPSendTimeout := 2000;
-  FHTTPResponseTimeout := 4000;
+  FHTTPResponseTimeout := 5000;
   FHTTPRetries := 3;
 end;
-
 function TqBitAPI.qBPost(MethodPath: string; ReqST, ResST: TStringStream; ContentType: string): integer;
 var
   Res: IHTTPResponse;
@@ -358,7 +261,6 @@ begin
     HTTP.Free;
   end;
 end;
-
 function TqBitAPI.qBPost(MethodPath: string; var Body: string): integer;
 var
   ReqSS: TStringStream;
@@ -380,13 +282,11 @@ begin
     ReqSS.Free;
   end;
 end;
-
 function TqBitAPI.qBPost(MethodPath: string): integer;
 begin
   var NoBody := '';
   Result := qBPost(MethodPath, NoBody);
 end;
-
 function TqBitAPI.Login(Username, Password: string): Boolean;
 begin
   FUsername := Username;
@@ -394,24 +294,20 @@ begin
   var Body := Format('username=%s&password=%s',[ URLEncode(Username), URLEncode(Password) ]);
   Result := (qBPost('/auth/login', Body) = 200)  and (Body = 'Ok.');
 end;
-
 function TqBitAPI.Logout: Boolean;
 begin
   Result := qBPost('/auth/logout') = 200;
 end;
-
 function TqBitAPI.GetVersion: string;
 begin
   FDuration := GetTickCount;
   qBPost('/app/version', Result);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetAPIVersion: string;
 begin
   qBPost('/app/webapiVersion', Result);
 end;
-
 function TqBitAPI.GetBuildInfo: TqBitBuildInfoType;
 begin
   FDuration := GetTickCount;
@@ -421,14 +317,12 @@ begin
     Result := TJson.JsonToObject<TqBitBuildInfoType>(Body, []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.Shutdown: Boolean;
 begin
   FDuration := GetTickCount;
   Result := qBPost('/app/shutdown') = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetPreferences: TqBitPreferencesType;
 begin
   FDuration := GetTickCount;
@@ -438,7 +332,6 @@ begin
     Result := TJson.JsonToObject<TqBitPreferencesType>(Body, []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.SetPreferences(Prefs: TqBitPreferencesType): boolean;
 begin
   FDuration := GetTickCount;
@@ -446,14 +339,12 @@ begin
   Result := qBPost('/app/setPreferences', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetDefaultSavePath: string;
 begin
   FDuration := GetTickCount;
   qBPost('/app/defaultSavePath', Result);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetLog(LastKnownId: int64 = -1; Normal: boolean = false;
       Info: boolean = false; Warning: boolean = true; Critical: boolean = true) : TqBitLogsType;
 begin
@@ -467,7 +358,6 @@ begin
     Result := TJson.JsonToObject<TqBitLogsType>('{"logs":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetPeerLog(LastKnownId: int64 = -1): TqBitPeerLogsType;
 begin
   FDuration := GetTickCount;
@@ -477,17 +367,21 @@ begin
     Result := TJson.JsonToObject<TqBitPeerLogsType>('{"logs":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetMainData(Rid: int64 = 0): TqBitMainDataType;
 begin
   FDuration := GetTickCount;
   Result := nil;
   var Body := Format('rid=%d', [ Rid ]);
   if  qBPost('/sync/maindata', Body) = 200 then
+  begin
+    SaveStringToFile(Body, 'd:\trace.json');
     Result := TJson.JsonToObject<TqBitMainDataType>(Body, []);
+    if assigned(Result) then
+      for var T in Result.Ftorrents do
+            TqBitTorrentType(T.Value)._FKey := T.Key;
+  end;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetTorrentPeersData(Hash: string;
   Rid: int64 = 0): TqBitTorrentPeersDataType;
 begin
@@ -498,7 +392,6 @@ begin
     Result := TJson.JsonToObject<TqBitTorrentPeersDataType>(Body, []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetGlobalTransferInfo: TqBitGlobalTransferInfoType;
 begin
   FDuration := GetTickCount;
@@ -508,7 +401,6 @@ begin
     Result := TJson.JsonToObject<TqBitGlobalTransferInfoType>(Body, []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetAlternativeSpeedLimitsState: boolean;
 begin
   FDuration := GetTickCount;
@@ -517,14 +409,12 @@ begin
   if  qBPost('/transfer/speedLimitsMode', Body) = 200 then
     Result := Body = '1';
 end;
-
 function TqBitAPI.ToggleAlternativeSpeedLimits: boolean;
 begin
   FDuration := GetTickCount;
   Result :=  qBPost('/transfer/toggleSpeedLimitsMode' ) = 200 ;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetGlobalDownloadLimit: integer;
 begin
   FDuration := GetTickCount;
@@ -534,7 +424,6 @@ begin
     TryStrToInt(Body, Result);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.SetGlobalDownloadLimit(GlobalDownloadLimit: integer): boolean;
 begin
   FDuration := GetTickCount;
@@ -542,7 +431,6 @@ begin
   Result := qBPost('/transfer/setDownloadLimit', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetGlobalUploadLimit: integer;
 begin
   FDuration := GetTickCount;
@@ -552,7 +440,6 @@ begin
     TryStrToInt(Body, Result);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.SetGlobalUploadLimit(GlobalUploafimit: integer): boolean;
 begin
   FDuration := GetTickCount;
@@ -560,7 +447,6 @@ begin
   Result := qBPost('/transfer/setUploadLimit', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.BanPeers(PeerListStr: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -568,7 +454,6 @@ begin
   Result := qBPost('/transfer/banPeers', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetTorrentList(TorrentListRequest: TqBitTorrentListRequestType): TqBitTorrentListType;
 begin
   FDuration := GetTickCount;
@@ -578,7 +463,6 @@ begin
     Result := TJson.JsonToObject<TqBitTorrentListType>('{"torrents":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetTorrentGenericProperties(Hash: string): TqBitTorrentInfoType;
 begin
   FDuration := GetTickCount;
@@ -588,7 +472,6 @@ begin
     Result := TJson.JsonToObject<TqBitTorrentInfoType>(Body, []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetTorrentTrackers(Hash: string): TqBitTrackersType;
 begin
   FDuration := GetTickCount;
@@ -598,7 +481,6 @@ begin
     Result := TJson.JsonToObject<TqBitTrackersType>('{"trackers":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetTorrentWebSeeds(Hash: string): TqBitWebSeedsType;
 begin
   FDuration := GetTickCount;
@@ -608,7 +490,6 @@ begin
      Result := TJson.JsonToObject<TqBitWebSeedsType>('{"urls":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetTorrentContents(Hash: string; Indexes: string = ''): TqBitContentsType;
 begin
   FDuration := GetTickCount;
@@ -622,7 +503,6 @@ begin
     Result := TJson.JsonToObject<TqBitContentsType>('{"contents":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetTorrentPiecesStates(Hash: string): TqBitPiecesStatesType;
 begin
   FDuration := GetTickCount;
@@ -632,7 +512,6 @@ begin
     Result := TJson.JsonToObject<TqBitPiecesStatesType>('{"states":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.PauseTorrents(Hashes: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -640,7 +519,6 @@ begin
   Result := qBPost('/torrents/pause', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.ResumeTorrents(Hashes: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -648,7 +526,6 @@ begin
   Result := qBPost('/torrents/resume', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.DeleteTorrents(Hashes: string; DeleteFiles: boolean = False): boolean;
 begin
   FDuration := GetTickCount;
@@ -656,7 +533,6 @@ begin
   Result := qBPost('/torrents/delete', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RecheckTorrents(Hashes: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -664,7 +540,6 @@ begin
   Result := qBPost('/torrents/recheck', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.ReannounceTorrents(Hashes: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -672,7 +547,6 @@ begin
   Result := qBPost('/torrents/reannounce', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.AddTrackersToTorrent(Hash, Urls: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -680,7 +554,6 @@ begin
   Result := qBPost('/torrents/addTrackers', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.EditTracker(Hash, OrigUrl, NewUrl: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -688,7 +561,6 @@ begin
   Result := qBPost('/torrents/editTracker', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RemoveTrackers(Hash, Urls: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -696,7 +568,6 @@ begin
   Result := qBPost('/torrents/removeTrackers', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.AddPeers(Hashes, Peers: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -704,7 +575,6 @@ begin
   Result := qBPost('/torrents/addPeers', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.IncreaseTorrentPriority(Hashes: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -712,7 +582,6 @@ begin
   Result := qBPost('/torrents/increasePrio', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.DecreaseTorrentPriority(Hashes: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -720,7 +589,6 @@ begin
   Result := qBPost('/torrents/decreasePrio', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.MaximalTorrentPriority(Hashes: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -728,7 +596,6 @@ begin
   Result := qBPost('/torrents/topPrio', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.MinimalTorrentPriority(Hashes: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -736,15 +603,13 @@ begin
   Result := qBPost('/torrents/bottomPrio', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
-function TqBitAPI.SetfilesPriority(Hash, Ids: string; Priority: integer): boolean;
+function TqBitAPI.SetFilePriority(Hash, Ids: string; Priority: integer): boolean;
 begin
   FDuration := GetTickCount;
   var Body := Format('hash=%s&id=%s&priority=%d', [URLEncode(Hash), URLEncode(Ids), Priority]);
   Result := qBPost('/torrents/filePrio', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetTorrentDownloadLimit(Hashes: string): TqBitTorrentSpeedsLimitType;
 begin
   FDuration := GetTickCount;
@@ -754,7 +619,6 @@ begin
     Result := TJson.JsonToObject<TqBitTorrentSpeedsLimitType>('{"speeds":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.SetTorrentDownloadLimit(Hashes: string;  Limit: integer): boolean;
 begin
   FDuration := GetTickCount;
@@ -762,7 +626,6 @@ begin
   Result := qBPost('/torrents/setDownloadLimit', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.SetTorrentShareLimit(Hashes: string; RatioLimit: double; SeedingTimeLimit: integer): boolean;
 begin
   FDuration := GetTickCount;
@@ -770,7 +633,6 @@ begin
   Result := qBPost('/torrents/setShareLimits', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetTorrentUploadLimit(Hashes: string): TqBitTorrentSpeedsLimitType;
 begin
   FDuration := GetTickCount;
@@ -780,7 +642,6 @@ begin
     Result := TJson.JsonToObject<TqBitTorrentSpeedsLimitType>('{"speeds":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.SetTorrentUploadLimit(Hashes: string;  Limit: integer): boolean;
 begin
   FDuration := GetTickCount;
@@ -788,7 +649,6 @@ begin
   Result := qBPost('/torrents/setUploadLimit', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.SetTorrentLocation(Hashes, Location: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -796,7 +656,6 @@ begin
   Result := qBPost('/torrents/setLocation', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.SetTorrentName(Hash, Name: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -804,7 +663,6 @@ begin
   Result := qBPost('/torrents/rename', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.SetTorrentCategory(Hashes, Category: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -812,7 +670,6 @@ begin
   Result := qBPost('/torrents/setCategory', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetAllCategories: TqBitCategoriesType;
 begin
   FDuration := GetTickCount;
@@ -822,7 +679,6 @@ begin
     Result := TJson.JsonToObject<TqBitCategoriesType>('{"categories":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.AddNewCategory(Category, SavePath: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -830,7 +686,6 @@ begin
   Result := qBPost('/torrents/createCategory', Body) = 200;;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.EditCategory(Category, SavePath: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -838,7 +693,6 @@ begin
   Result := qBPost('/torrents/editCategory', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RemoveCategories(Categories: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -846,7 +700,6 @@ begin
   Result := qBPost('/torrents/removeCategories', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.AddTorrentTags(Hashes, Tags: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -854,7 +707,6 @@ begin
   Result := qBPost('/torrents/addTags', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RemoveTorrentTags(Hashes, Tags: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -862,7 +714,6 @@ begin
   Result := qBPost('/torrents/removeTags', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.GetAllTags: TqBitTagsType;
 begin
   FDuration := GetTickCount;
@@ -872,7 +723,6 @@ begin
     Result := TJson.JsonToObject<TqBitTagsType>('{"tags":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.CreateTags(Tags: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -880,7 +730,6 @@ begin
   Result := qBPost('/torrents/createTags', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.DeleteTags(Tags: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -888,7 +737,6 @@ begin
   Result := qBPost('/torrents/deleteTags', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.SetAutomaticTorrentManagement(Hashes: string; Enable: boolean): boolean;
 begin
   FDuration := GetTickCount;
@@ -896,7 +744,6 @@ begin
   Result := qBPost('/torrents/setAutoManagement', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.ToggleSequentialDownload(Hashes: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -904,7 +751,6 @@ begin
   Result := qBPost('/torrents/toggleSequentialDownload', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.SetFirstLastPiecePriority(Hashes: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -912,7 +758,6 @@ begin
   Result := qBPost('/torrents/toggleFirstLastPiecePrio', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.SetForceStart(Hashes: string; value: boolean): boolean;
 begin
   FDuration := GetTickCount;
@@ -920,7 +765,6 @@ begin
   Result := qBPost('/torrents/setForceStart', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.SetSuperSeeding(Hashes: string; value: boolean): boolean;
 begin
   FDuration := GetTickCount;
@@ -928,7 +772,6 @@ begin
   Result := qBPost('/torrents/setSuperSeeding', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RenameFile(Hash, OldPath, NewPath: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -936,7 +779,6 @@ begin
   Result := qBPost('/torrents/renameFile', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RenameFolder(Hash, OldPath, NewPath: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -944,7 +786,6 @@ begin
   Result := qBPost('/torrents/renameFolder', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.AddNewTorrentUrls(NewTorrentUrls: TqBitNewTorrentUrlsType): boolean;
 var
   GUID: TGUID;
@@ -1077,9 +918,7 @@ begin
   end;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.AddNewTorrentFile(NewTorrentFile: TqBitNewTorrentFileType): boolean;
-
 var
   GUID: TGUID;
   Boundary: string;
@@ -1104,11 +943,9 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-
     var FileStream := TFileStream.Create(NewTorrentFile.Ffilename, fmOpenRead or fmShareDenyWrite);
     SS.CopyFrom(FileStream, FileStream.Size);
     FileStream.Free;
-
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
     SS.WriteString('Content-Disposition: form-data; name="autoTMM"');
@@ -1207,12 +1044,10 @@ begin
   end;
   FDuration := GetTickcount - FDuration;
 end;
-
 ////////////////////////////////////////////////////////////////////////////////
 // RSS EXPERIMENTAL :
 // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#rss-experimental
 ////////////////////////////////////////////////////////////////////////////////
-
 function TqBitAPI.RSSAddFolder(Path: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -1221,7 +1056,6 @@ begin
   FDuration := GetTickcount - FDuration;
 end;
 
-
 function TqBitAPI.RSSAddFeed(Url, Path: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -1229,7 +1063,6 @@ begin
   Result := qBPost('/rss/addFeed', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RSSRemoveItem(Path: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -1237,7 +1070,6 @@ begin
   Result := qBPost('/rss/removeItem', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RSSMoveItem(ItemPath, DestPath: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -1245,7 +1077,6 @@ begin
   Result := qBPost('/rss/moveItem', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RSSGetAllItems(WithData: boolean): TqBitRSSAllItemsType;
 begin
   FDuration := GetTickCount;
@@ -1255,7 +1086,6 @@ begin
     Result := TJson.JsonToObject<TqBitRSSAllItemsType>('{"items":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RSSMarkAsRead(ItemPath, ArticleId: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -1263,7 +1093,6 @@ begin
   Result := qBPost('/rss/markAsRead', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RSSRefreshItem(ItemPath: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -1271,7 +1100,6 @@ begin
   Result := qBPost('/rss/refreshItem', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RSSSetAutoDownloadingRules(RuleName: string;
   RuleDef: TqBitRSSRuleType): boolean;
 begin
@@ -1282,7 +1110,6 @@ begin
   Result := qBPost('/rss/setRule', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RSSRenameAutoDownloadingRules(RuleName, NewRuleName: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -1290,7 +1117,6 @@ begin
   Result := qBPost('/rss/renameRule', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RSSRemoveAutoDownloadingRules(RuleName: string): boolean;
 begin
   FDuration := GetTickCount;
@@ -1298,7 +1124,6 @@ begin
   Result := qBPost('/rss/removeRule', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RSSGetAllAutoDownloadingRules: TqBitAutoDownloadingRulesType;
 begin
   FDuration := GetTickCount;
@@ -1308,7 +1133,6 @@ begin
     Result := TJson.JsonToObject<TqBitAutoDownloadingRulesType>('{"rules":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
-
 function TqBitAPI.RSSGetMatchingArticles(RuleName: string): TqBitRSSArticles;
 begin
   FDuration := GetTickCount;
@@ -1318,6 +1142,4 @@ begin
     Result := TJson.JsonToObject<TqBitRSSArticles>('{"articles":' + Body + '}', []);
   FDuration := GetTickcount - FDuration
 end;
-
 end.
-
