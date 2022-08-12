@@ -1,20 +1,23 @@
 unit uSimple;
 
 interface
-
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uqBitObject, uqBitAPI, uqBitAPITypes,
   Vcl.ExtCtrls, Vcl.StdCtrls;
 
 type
-  TForm2 = class(TForm)
+  TFrmSimple = class(TForm)
     Timer1: TTimer;
     Warning: TMemo;
     LBTorrents: TListBox;
+    Panel1: TPanel;
+    LinkLabel1: TLinkLabel;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Timer1Timer(Sender: TObject);
+    procedure LinkLabel1LinkClick(Sender: TObject; const Link: string;
+      LinkType: TSysLinkType);
   private
     { Private declarations }
   public
@@ -23,61 +26,67 @@ type
     qBMain: TqBitMainDataType;
     procedure UpdateUI;
   end;
-
 var
-  Form2: TForm2;
+  FrmSimple: TFrmSimple;
 
 implementation
-
 {$R *.dfm}
+uses ShellAPI, uqBitPatchChecker, uqBitSelectServerDlg, uqBitFormat;
 
-uses uSelectServer, uPatcherChecker;
+procedure TFrmSimple.LinkLabel1LinkClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
+begin
+ ShellExecute(0, 'Open', PChar(Link), PChar(''), nil, SW_SHOWNORMAL);
+end;
 
-procedure TForm2.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TFrmSimple.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   qBMain.Free;
   qB.Free;
 end;
 
-procedure TForm2.FormShow(Sender: TObject);
+procedure TFrmSimple.FormShow(Sender: TObject);
 begin
- Warning.Visible := False;
- ShowMessage('In order to run this demo locally, start qBittorrent.exe -> Parameters -> Web UI -> ENABLE : "WebUI Remote Interface (Remote Control)" and "bypass atuhentification for clients on localhost"' + #$D#$A + 'NOX users know what to do...');
- if SelectServerDlg.ShowModal = mrOk then
- begin
-  var Server := SelectServerDlg.GetServer;
-  qB := TqBitObject.Connect( Server.FHP, Server.FUN, Server.FPW);
-  qBMain :=qB.GetMainData(0); // >> Full Data
-  UpdateUI;
-  Timer1.Interval := qBMain.Fserver_state.Frefresh_interval; // The update interval is defined by the server
-  Timer1.Enabled := True;
- end else
-  close;
+  Warning.Visible := False;
+  ShowMessage('In order to run this demo locally, start qBittorrent.exe -> Parameters -> Web UI -> ENABLE : "WebUI Remote Interface (Remote Control)" and "bypass atuhentification for clients on localhost"' + #$D#$A + 'NOX users know what to do...');
+  if qBitSelectServerDlg.ShowModal = mrOk then
+  begin
+    var Server := qBitSelectServerDlg.GetServer;
+    qB := TqBitObject.Connect(Server.FHP, Server.FUN, Server.FPW);
+    qBMain := qB.GetMainData(0); // >> Full Data
+    UpdateUI;
+    Timer1.Interval := qBMain.Fserver_state.Frefresh_interval; // The update interval is defined by the server
+    Timer1.Enabled := True;
+  end else
+    PostMessage(Handle, WM_CLOSE,0 ,0);
 end;
 
-procedure TForm2.UpdateUI;
+procedure TFrmSimple.UpdateUI;
 begin
   ////////////////  Few Properties...
   Caption := Format('Torrents : %d', [qBMain.Ftorrents.Count]);
   Caption := Caption + ' / ';
-  Caption := Caption + Format('Dl : %s KiB/s', [qBMain.Fserver_state.Fdl_info_speed div 1024 ]);
+  Caption := Caption + Format('Dl : %s', [VarFormatBKMPerSec(qBMain.Fserver_state.Fdl_info_speed)]);
   Caption := Caption + ' / ';
-  Caption := Caption + Format('Up : %s KiB/s', [qBMain.Fserver_state.FUp_info_speed div 1024 ]);
-
+  Caption := Caption + Format('Up : %s', [VarFormatBKMPerSec(qBMain.Fserver_state.Fup_info_speed)]);
   LBTorrents.Clear;
-  for var T in qBMAin.Ftorrents do
-      LBTorrents.Items.Add( TqBitTorrentType(T.Value).Fname );
+  for var T in qBMain.Ftorrents do
+    LBTorrents.Items.Add( TqBitTorrentType(T.Value).Fname );
 end;
 
-procedure TForm2.Timer1Timer(Sender: TObject);
+procedure TFrmSimple.Timer1Timer(Sender: TObject);
 begin
-  var Update := qb.GetMainData(qBMain.Frid); // >> Get The Data since the last getMain;
-  qBMain.Merge(Update); // we merge the update : qBMain is now up to date
+  var Update := qb.GetMainData(qBMain.Frid); // >> Get The Data since the last getMainData
+  if Update <> Nil then
+  begin
+    qBMain.Merge(Update); // we merge the update : qBMain is now up to date
+  end else begin
+    Timer1.Enabled := False;
+    LBTorrents.Clear;
+    LBTorrents.Items.Add('Disconnected...');
+    Exit;
+  end;
   Update.Free;
   UpdateUI;
 end;
 
-
-initialization
-  PatcherChecker; // Check if JSON Libs have been patched
 end.

@@ -34,7 +34,8 @@ var
   NOXMonDlg: TNOXMonDlg;
 
 implementation
-uses uPatcherChecker, uSelectServer, Math;
+uses uqBitSelectServerDlg, Math;
+
 {$R *.dfm}
 
 procedure TNOXMonDlg.FormShow(Sender: TObject);
@@ -42,12 +43,12 @@ var
   Srvs: TObjectList<TqBitServer>;
   Th : TqBitThread;
 begin
-  SelectServerDlg.MultiSelect := True;
-  if SelectServerDlg.ShowModal = mrOk then
+  qBitSelectServerDlg.MultiSelect := True;
+  if qBitSelectServerDlg.ShowModal = mrOk then
   begin
     UpdateHeaders;
     ThList := TObjectList<TqBitThread>.Create(False);
-    Srvs :=  SelectServerDlg.GetMultiServers;
+    Srvs :=  qBitSelectServerDlg.GetMultiServers;
     var RowIndex := 1;
     for var Srv in Srvs do
     begin
@@ -59,8 +60,9 @@ begin
       Th.Start;
     end;
     Srvs.Free;
-  end;
+  end else Close;
 end;
+
 
 procedure TNOXMonDlg.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -133,7 +135,12 @@ begin
   begin
     var tme := GetTickCount;
     var U := qB.GetMainData(qBMainTh.Frid); // get differebtial data from last call
-    qBMainTh.Merge(U); // Merge to qBMain to be uodated to date
+    if U = nil then
+    begin
+      qBMainTh.Fserver_state.Fconnection_status := 'disconnected';
+      Terminate;
+    end else
+      qBMainTh.Merge(U); // Merge to qBMain to be uodated to date
     U.Free;
     Synchronize(
       procedure
@@ -151,6 +158,4 @@ begin
   qB.Free;
 end;
 
-initialization
-  PatcherChecker; // Check if JSON Libs have been patched
 end.

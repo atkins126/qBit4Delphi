@@ -10,6 +10,7 @@ object vnStatDemoFrm: TvnStatDemoFrm
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  Position = poScreenCenter
   TextHeight = 15
   object Label1: TLabel
     Left = 8
@@ -44,7 +45,7 @@ object vnStatDemoFrm: TvnStatDemoFrm
       
         'then provide the full php script URL and the interface name in w' +
         'hich '
-      'yourare  interrested in.')
+      'you are  interrested in.')
     ScrollBars = ssVertical
     TabOrder = 3
   end

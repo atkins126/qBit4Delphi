@@ -1,12 +1,9 @@
 unit uSimpleThreaded;
-
 interface
-
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uqBitObject, uqBitAPI, uqBitAPITypes,
   Vcl.ExtCtrls, Vcl.StdCtrls;
-
 type
   TqBitThread = class(TThread)
     qB: TqBitObject;
@@ -14,9 +11,7 @@ type
     procedure Execute; override;
     destructor Destroy; override;
   end;
-
-  TSimpleThreadedDlg = class(TForm)
-    Warning: TMemo;
+  TFrmSimpleThreaded = class(TForm)
     LBTorrents: TListBox;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -28,26 +23,20 @@ type
     qBMain: TqBitMainDataType;
     Th: TqBitThread;
     procedure SyncThread(Sender: TqBitThread);
+    procedure Disconnected(Sender: TqBitThread);
     procedure UpdateUI;
   end;
-
 var
-  SimpleThreadedDlg: TSimpleThreadedDlg;
-
+  FrmSimpleThreaded: TFrmSimpleThreaded;
 implementation
-
 {$R *.dfm}
-
-uses uSelectServer, uPatcherChecker;
-
+uses uqBitSelectServerDlg, uqBitFormat;
 { TqBitThread }
-
 destructor TqBitThread.Destroy;
 begin
   qB.Free;
   inherited;
 end;
-
 procedure TqBitThread.Execute;
 begin
   qBMainTh := qb.GetMainData(0); // Full server data update
@@ -55,14 +44,25 @@ begin
   begin
     var tme := GetTickCount;
     var U := qB.GetMainData(qBMainTh.Frid); // get differebtial data from last call
-    qBMainTh.Merge(U); // Merge to qBMain to be uodate to date
-    U.Free;
-    Synchronize(
-      procedure
-      begin
-        SimpleThreadedDlg.SyncThread(Self);
-      end
-    );
+    if U = Nil then
+    begin
+      Synchronize(
+        procedure
+        begin
+          FrmSimpleThreaded.Disconnected(Self);
+        end
+      );
+      Terminate;
+    end else begin
+      qBMainTh.Merge(U); // Merge to qBMain to be uodate to date
+      U.Free;
+      Synchronize(
+        procedure
+        begin
+          FrmSimpleThreaded.SyncThread(Self);
+        end
+      );
+    end;
     while
       (GetTickCount - Tme < qBMainTh.Fserver_state.Frefresh_interval)
       and (not Terminated)
@@ -71,22 +71,23 @@ begin
   end;
   qBMainTh.Free;
 end;
-
-procedure TSimpleThreadedDlg.FormShow(Sender: TObject);
+procedure TFrmSimpleThreaded.FormShow(Sender: TObject);
 begin
-  Warning.Visible := False;
-  ShowMessage('In order to run this demo locally, start qBittorrent.exe -> Parameters -> Web UI -> ENABLE : "WebUI Remote Interface (Remote Control)" and "bypass atuhentification for clients on localhost"' + #$D#$A + 'NOX users know what to do...');
-  if SelectServerDlg.ShowModal = mrOk then
+  if qBitSelectServerDlg.ShowModal = mrOk then
   begin
-    var Server := SelectServerDlg.GetServer;
-    qB := TqBitObject.Connect( Server.FHP, Server.FUN, Server.FPW);
+    var Server := qBitSelectServerDlg.GetServer;
+    qB := TqBitObject.Connect(Server.FHP, Server.FUN, Server.FPW);
     Th := TqBitThread.Create;
-    Th.qB := qB.Clone; // We clone qB for the Thread, in this demo this is not necessary
-  end else
-    Close;
+    Th.qB := qB.Clone; // We clone qB for the Thread (safe)
+  end else Close;
+end;
+procedure TFrmSimpleThreaded.Disconnected(Sender: TqBitThread);
+begin
+  LBTorrents.Clear;
+  LBTorrents.Items.Add('Disconnected...');
 end;
 
-procedure TSimpleThreadedDlg.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TFrmSimpleThreaded.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   if not Assigned(qB) then Exit;
   Th.Terminate;
@@ -94,27 +95,21 @@ begin
   Th.Free;
   qB.Free;
 end;
-
-procedure TSimpleThreadedDlg.SyncThread(Sender: TqBitThread);
+procedure TFrmSimpleThreaded.SyncThread(Sender: TqBitThread);
 begin
   qBMain := Sender.qBMainTh;
   UpdateUI;
 end;
-
-procedure TSimpleThreadedDlg.UpdateUI;
+procedure TFrmSimpleThreaded.UpdateUI;
 begin
   ////////////////  Few Properties...
   Caption := Format('Torrents : %d', [qBMain.Ftorrents.Count]);
   Caption := Caption + ' / ';
-  Caption := Caption + Format('Dl : %s KiB/s', [qBMain.Fserver_state.Fdl_info_speed div 1024 ]);
+  Caption := Caption + Format('Dl : %s', [VarFormatBKMPerSec(qBMain.Fserver_state.Fdl_info_speed)]);
   Caption := Caption + ' / ';
-  Caption := Caption + Format('Up : %s KiB/s', [qBMain.Fserver_state.FUp_info_speed div 1024 ]);
-
+  Caption := Caption + Format('Up : %s', [VarFormatBKMPerSec(qBMain.Fserver_state.Fup_info_speed)]);
   LBTorrents.Clear;
   for var T in qBMAin.Ftorrents do
-      LBTorrents.Items.Add( TqBitTorrentType(T.Value).Fname );
+      LBTorrents.Items.Add( TqBitTorrentType(T.Value).Fname + ' / ' + TqBitTorrentType(T.Value).Fstate);
 end;
-
-initialization
-  PatcherChecker; // Check if JSON Libs have been patched
 end.
