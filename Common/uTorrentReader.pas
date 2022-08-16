@@ -67,7 +67,9 @@ type
     HashV1: string;
     HashV2: string;
     Info: TTorrentDataInfo;
+    NiceName: string; // Helper
     PieceLayers: TStringList; // V2 Only
+    KeyHash: string; // Helper
     WebSeeds: TStringList;
     constructor Create; overload;
     destructor Destroy; override;
@@ -359,8 +361,16 @@ begin
     if assigned(Enc) then FData.CreationDate := TTimeZone.Local.ToLocalTime(UnixToDateTime(Enc.IntegerData));
 
     // Hashes
-    if ((FData.Info.MetaVersion = 1) or FData.Info.IsHybrid) and (not (trNoHash in Options)) then FData.HashV1 := GetSHA1(Info);
-    if ((FData.Info.MetaVersion = 2) or FData.Info.IsHybrid) and (not (trNoHash in Options)) then FData.HashV2 := GetSHA2(Info);
+    if ((FData.Info.MetaVersion = 1) or FData.Info.IsHybrid) and (not (trNoHash in Options)) then
+    begin
+      FData.HashV1 := GetSHA1(Info);
+      FData.KeyHash := FData.HashV1;
+    end;
+    if ((FData.Info.MetaVersion = 2) or FData.Info.IsHybrid) and (not (trNoHash in Options)) then
+    begin
+      FData.HashV2 := GetSHA2(Info);
+      FData.KeyHash := Copy(FData.HashV2, 1, 40);
+    end;
 
     // Name:
     Enc := Info.ListData.FindElement('name') as TBEncoded;
@@ -455,6 +465,13 @@ begin
       if Data.Info.MetaVersion > 1 then
         Data.Info.PiecesCount := Data.Info.PiecesCount + fle.PiecesCount;
     end;
+
+    // NiceName : Custom Helper
+    if Data.Info.HasMultipleFiles then
+      FData.NiceName := Data.Info.Name
+    else
+      FData.NiceName := Data.Info.FileList[0].FullPath;
+
   except
     RaiseException('Invalid Torrent File');
   end;
