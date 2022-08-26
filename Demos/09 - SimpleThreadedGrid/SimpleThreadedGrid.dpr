@@ -1,4 +1,4 @@
-program Simple;
+program SimpleThreadedGrid;
 uses
 
   {$INCLUDE ..\Defines.inc}
@@ -26,21 +26,23 @@ uses
   uqBitObject in '..\..\API\uqBitObject.pas',
 
   Vcl.Forms,
-  uSimple in 'uSimple.pas' {FrmSimple},
-
   uqBitUtils in '..\..\Common\uqBitUtils.pas',
   uqBitPatchChecker in '..\..\Common\uqBitPatchChecker.pas',
   uqBitFormat in '..\..\Common\uqBitFormat.pas',
   uqBitAddServerDlg in '..\Common\Dialogs\uqBitAddServerDlg.pas' {qBitAddServerDlg},
-  uqBitSelectServerDlg in '..\Common\Dialogs\uqBitSelectServerDlg.pas' {qBitSelectServerDlg};
+  uqBitSelectServerDlg in '..\Common\Dialogs\uqBitSelectServerDlg.pas' {qBitSelectServerDlg},
+  uKobicAppTrackMenus in '..\Common\uKobicAppTrackMenus.pas',
+  uqBitGrid in '..\Common\uqBitGrid.pas' {qBitFrame: TFrame},
+  uqBitThreads in '..\..\Common\uqBitThreads.pas',
+  uSimpleThreadedGrid in 'uSimpleThreadedGrid.pas' {FrmSTG};
 
 {$R *.res}
 
 begin
-  {$IFNDEF FASTMM4} {$IFDEF DEBUG} ReportMemoryLeaksOnShutdown := True; {$ENDIF} {$ENDIF}
+ {$IFNDEF FASTMM4} {$IFDEF DEBUG} ReportMemoryLeaksOnShutdown := True; {$ENDIF} {$ENDIF}
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.CreateForm(TFrmSimple, FrmSimple);
+  Application.CreateForm(TFrmSTG, FrmSTG);
   Application.CreateForm(TqBitAddServerDlg, qBitAddServerDlg);
   Application.CreateForm(TqBitSelectServerDlg, qBitSelectServerDlg);
   Application.Run;

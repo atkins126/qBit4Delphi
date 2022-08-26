@@ -72,9 +72,9 @@ type
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-default-save-path
     function GetDefaultSavePath: string; virtual;
         // UNDOCUMENTED
-    function GetNetworkInterfaces: TqBitNetworkInterfaces;
+    function GetNetworkInterfaces: TqBitNetworkInterfacesType;
         // UNDOCUMENTED
-    function GetNetworkInterfaceAddress(Iface: string = ''): TqBitNetworkInterfaceAddresses;
+    function GetNetworkInterfaceAddress(Iface: string = ''): TqBitNetworkInterfaceAddressesType;
 
   // Log :
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#log
@@ -109,7 +109,7 @@ type
 
   // Torrent management :
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-torrent-list
-    function GetTorrentList(TorrentListRequest : TqBitTorrentListRequestType): TqBitTorrentListType; overload; virtual;
+    function GetTorrentList(TorrentListRequest : TqBitTorrentListRequestType): TqBitTorrentsListType; overload; virtual;
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-torrent-generic-properties
     function GetTorrentGenericProperties(Hash: string): TqBitTorrentInfoType; virtual;
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-torrent-trackers
@@ -512,33 +512,33 @@ begin
   FDuration := GetTickcount - FDuration;
 end;
 
-function TqBitAPI.GetNetworkInterfaces: TqBitNetworkInterfaces;
+function TqBitAPI.GetNetworkInterfaces: TqBitNetworkInterfacesType;
 begin
   FDuration := GetTickCount;
   Result := nil;
   var Body := '';
   if (qBPost('/app/networkInterfaceList', Body) = 200) and (Body <> '')  then
-    Result := TJson.JsonToObject<TqBitNetworkInterfaces>('{"ifaces":' + Body + '}', []);
+    Result := TJson.JsonToObject<TqBitNetworkInterfacesType>('{"ifaces":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
 
-function TqBitAPI.GetNetworkInterfaceAddress(Iface: string): TqBitNetworkInterfaceAddresses;
+function TqBitAPI.GetNetworkInterfaceAddress(Iface: string): TqBitNetworkInterfaceAddressesType;
 begin
   FDuration := GetTickCount;
   Result := nil;
   var Body := Format('iface=%s', [TqBitAPIUtils.URLEncode(Iface)]);
   if (qBPost('/app/networkInterfaceAddressList', Body) = 200) and (Body <> '')  then
-    Result := TJson.JsonToObject<TqBitNetworkInterfaceAddresses>('{"adresses":' + Body + '}', []);
+    Result := TJson.JsonToObject<TqBitNetworkInterfaceAddressesType>('{"adresses":' + Body + '}', []);
   FDuration := GetTickcount - FDuration
 end;
 
-function TqBitAPI.GetTorrentList(TorrentListRequest: TqBitTorrentListRequestType): TqBitTorrentListType;
+function TqBitAPI.GetTorrentList(TorrentListRequest: TqBitTorrentListRequestType): TqBitTorrentsListType;
 begin
   FDuration := GetTickCount;
   Result := nil;
   var Body := TorrentListRequest.ToParams;
   if (qBPost('/torrents/info', Body) = 200) and (Body <> '')  then
-    Result := TJson.JsonToObject<TqBitTorrentListType>('{"torrents":' + Body + '}', []);
+    Result := TJson.JsonToObject<TqBitTorrentsListType>('{"torrents":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
 end;
 

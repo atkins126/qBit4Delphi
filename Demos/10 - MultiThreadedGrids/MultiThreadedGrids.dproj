@@ -1,6 +1,6 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{2BC6516D-EB45-481D-9D81-DD451B6BC4E5}</ProjectGuid>
+        <ProjectGuid>{6E1FC66D-37B3-4B27-95B4-FEDBAF8CCBFC}</ProjectGuid>
         <ProjectVersion>19.4</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
@@ -8,7 +8,7 @@
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
-        <MainSource>AddTorrentDemo.dpr</MainSource>
+        <MainSource>MultiThreadedGrids.dpr</MainSource>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -57,7 +57,7 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-        <SanitizedProjectName>AddTorrentDemo</SanitizedProjectName>
+        <SanitizedProjectName>MultiThreadedGrids</SanitizedProjectName>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
@@ -116,25 +116,23 @@
         <DCCReference Include="..\..\API\uqBitAPITypes.pas"/>
         <DCCReference Include="..\..\API\uqBitAPI.pas"/>
         <DCCReference Include="..\..\API\uqBitObject.pas"/>
-        <DCCReference Include="uAddTorrentDemo.pas">
-            <Form>FrmAddTorrent</Form>
-        </DCCReference>
         <DCCReference Include="..\..\Common\uqBitUtils.pas"/>
         <DCCReference Include="..\..\Common\uqBitPatchChecker.pas"/>
         <DCCReference Include="..\..\Common\uqBitFormat.pas"/>
-        <DCCReference Include="..\..\Common\uTorrentReader.pas"/>
-        <DCCReference Include="..\..\Common\uBEncode.pas"/>
         <DCCReference Include="..\Common\Dialogs\uqBitAddServerDlg.pas">
             <Form>qBitAddServerDlg</Form>
         </DCCReference>
-        <DCCReference Include="..\Common\Dialogs\uqBitAddTorrentDlg.pas">
-            <Form>qBitAddTorrentDlg</Form>
-        </DCCReference>
-        <DCCReference Include="..\Common\Dialogs\uqBitCategoriesDlg.pas">
-            <Form>qBitCatDlg</Form>
-        </DCCReference>
         <DCCReference Include="..\Common\Dialogs\uqBitSelectServerDlg.pas">
             <Form>qBitSelectServerDlg</Form>
+        </DCCReference>
+        <DCCReference Include="..\Common\uKobicAppTrackMenus.pas"/>
+        <DCCReference Include="..\Common\uqBitGrid.pas">
+            <Form>qBitFrame</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\..\Common\uqBitThreads.pas"/>
+        <DCCReference Include="uMultiThreadedGrids.pas">
+            <Form>FrmSTG</Form>
         </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
@@ -154,7 +152,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">AddTorrentDemo.dpr</Source>
+                    <Source Name="MainSource">MultiThreadedGrids.dpr</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
@@ -162,9 +160,9 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="..\AddTorrentDemo.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="..\MultiThreadedGrids.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>AddTorrentDemo.exe</RemoteName>
+                        <RemoteName>MultiThreadedGrids.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

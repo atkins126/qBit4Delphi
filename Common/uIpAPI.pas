@@ -1,4 +1,4 @@
-unit uIP_API;
+unit uIpAPI;
 
 ///
 ///  Author:  Laurent Meyer
@@ -14,7 +14,7 @@ interface
 
 type
 
-  TIP_API = class
+  TIpAPI = class
     Fstatus: string;
     Fmessage: string;
     Fcontinent: string;
@@ -39,12 +39,12 @@ type
     Fproxy: boolean;
     Fhosting: boolean;
     Fquery: string;
-    class function FromJSON(JSONStr: string): TIP_API;
+    class function FromJSON(JSONStr: string): TIpAPI;
     class function FromURL(
       IPorDomain: string = '';
       Fields: string = 'status,message,continent,country,countryCode,region,regionName,city,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query';
       URL: String = 'http://ip-api.com/json/'
-    ): TIP_API;
+    ): TIpAPI;
   end;
 
 implementation
@@ -52,19 +52,19 @@ uses  REST.Json,
       System.Net.HttpClient,
       System.SysUtils, System.DateUtils, System.Classes;
 
-{ TIP_API }
+{ TIpAPI }
 
-class function TIP_API.FromJSON(JSONStr: string): TIP_API;
+class function TIpAPI.FromJSON(JSONStr: string): TIpAPI;
 begin
   try
-    Result := TJSon.JsonToObject<TIP_API>(JSONStr);
+    Result := TJSon.JsonToObject<TIpAPI>(JSONStr);
   except
     Result := nil;
   end;
 end;
 
 // IPorDomain = '' is your External IP  - Fields description at https://ip-api.com/docs/api:json
-class function TIP_API.FromURL(IPorDomain: string; Fields: string; URL: string): TIP_API;
+class function TIpAPI.FromURL(IPorDomain: string; Fields: string; URL: string): TIpAPI;
 var
   Http: THTTPClient;
   ReqSS: TStringStream;
@@ -76,7 +76,7 @@ begin
       Http := THTTPClient.Create;
       var Res := Http.Get(URL+ '/' + IPorDomain + '?fields=' + Fields, ReqSS);
       if Res.StatusCode = 200 then
-        Result := TIP_API.FromJSON(ReqSS.DataString);
+        Result := TIpAPI.FromJSON(ReqSS.DataString);
     except
       Result := nil;
     end;
