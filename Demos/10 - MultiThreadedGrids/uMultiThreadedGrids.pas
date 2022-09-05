@@ -123,9 +123,19 @@ begin
     PeersFrame.AddCol('Up Speed', 'Fup_speed', VarFormatBKMPerSec, 72, True);
     PeersFrame.AddCol('Downloaded', 'Fdownloaded', VarFormatBKM, 72, True);
     PeersFrame.AddCol('Uploaded', 'Fuploaded', VarFormatBKM, 72, True);
+    rttictx := TRttiContext.Create();
+    rttitype := rttictx.GetType(TqBitTorrentPeerDataType);
+    for var field in rttitype.GetFields do
+    begin
+      var Title := 'Raw: ' + field.Name;
+      if pos('_', field.Name) = 1 then continue;
+      PeersFrame.AddCol(Title, field.Name, VarFormatString, -2, False);
+    end;
+    rttictx.Free;
     PeersFrame.SortField := 'Fip';
     PeersFrame.SortReverse := False;
     PeersFrame.OnPopupEvent := Self.PeersFramePopupEvent;
+    PeersFrame.OnUpdateUIEvent := Self.PeersFrameUpdateEvent;
 
     TrackersFrame.DoCreate;
 
@@ -137,10 +147,18 @@ begin
     TrackersFrame.AddCol('Leeches', 'Fnum_leeches', VarFormatString, 84, True);
     TrackersFrame.AddCol('Donwloaded', 'Fnum_downloaded', VarFormatBKM, 84, True);
     TrackersFrame.AddCol('Message', 'Fmsg', VarFormatString, 128, True);
+    rttictx := TRttiContext.Create();
+    rttitype := rttictx.GetType(TqBitTrackerType);
+    for var field in rttitype.GetFields do
+    begin
+      var Title := 'Raw: ' + field.Name;
+      if pos('_', field.Name) = 1 then continue;
+      TrackersFrame.AddCol(Title, field.Name, VarFormatString, -2, False);
+    end;
+    rttictx.Free;
     TrackersFrame.SortField := 'Furl';
     TrackersFrame.SortReverse := False;
     TrackersFrame.OnUpdateUIEvent := TrackersFrameUpdateEvent;
-
 
     MainThread := TqBitMainThread.Create(qB.Clone, MainThreadEvent);
     PeersThread := TqBitPeersThread.Create(qB.Clone, PeersThreadEvent);
@@ -259,7 +277,6 @@ begin
   PeersThread.Pause := True;
   var Sel := PeersFrame.GetSelectedKeys;
   try
-    if Sel.Count = 0 then Exit;
     PeersPopup.Popup(X,Y);
   finally
     Sel.Free;

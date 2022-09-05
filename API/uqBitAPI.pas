@@ -221,11 +221,11 @@ type
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#rename-auto-downloading-rule
     function RSSRenameAutoDownloadingRules(RuleName, NewRuleName: string): boolean; virtual;
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#remove-auto-downloading-rule
-     function RSSRemoveAutoDownloadingRules(RuleName: string): boolean; virtual;
+    function RSSRemoveAutoDownloadingRules(RuleName: string): boolean; virtual;
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-all-auto-downloading-rules
     function RSSGetAllAutoDownloadingRules: TqBitAutoDownloadingRulesType; virtual;
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-all-articles-matching-a-rule
-    function RSSGetMatchingArticles(RuleName: string): TqBitRSSArticles; virtual;
+    function RSSGetMatchingArticles(RuleName: string): TqBitRSSArticlesType; virtual;
 
   // Search : will be implemented if requested.
 
@@ -404,10 +404,14 @@ begin
   Result := nil;
   var Body := Format(
                 'normal=%s&info=%s&warning=%s&critical=%s&last_known_id=%d',
-                [ BLStr[Normal],  BLStr[Info],  BLStr[Warning],  BLStr[Critical], LastKnownId ]
+                [ BStr[Normal],  BStr[Info],  BStr[Warning],  BStr[Critical], LastKnownId ]
               );
   if  qBPost('/log/main', Body) = 200 then
     Result := TJson.JsonToObject<TqBitLogsType>('{"logs":' + Body + '}', []);
+  // Helper
+  if (Result <> nil) and (Result.Flogs <> nil) then
+    for var T in Result.Flogs do
+       TqBitLogType(T)._Key :=  TqBitLogType(T).Fid;
   FDuration := GetTickcount - FDuration;
 end;
 
@@ -418,6 +422,10 @@ begin
   var Body :=  Format('last_known_id=%d', [lastKnownId]);
   if  qBPost('/log/peers', Body) = 200 then
     Result := TJson.JsonToObject<TqBitPeerLogsType>('{"logs":' + Body + '}', []);
+  // Helper
+  if (Result <> nil) and (Result.Flogs <> nil) then
+    for var T in Result.Flogs do
+       TqBitPeerLogType(T)._Key :=  TqBitPeerLogType(T).Fid;
   FDuration := GetTickcount - FDuration;
 end;
 
@@ -428,6 +436,10 @@ begin
   var Body := Format('rid=%d', [ Rid ]);
   if  qBPost('/sync/maindata', Body) = 200 then
     Result := TJson.JsonToObject<TqBitMainDataType>(Body, []);
+  // Helper: this call does not fill the Fhash field up
+  if (Result <> nil) and (Result.Ftorrents <> nil) then
+    for var T in Result.Ftorrents do
+      TqBitTorrentType(T.Value).Fhash := T.Key;
   FDuration := GetTickcount - FDuration;
 end;
 
@@ -539,6 +551,10 @@ begin
   var Body := TorrentListRequest.ToParams;
   if (qBPost('/torrents/info', Body) = 200) and (Body <> '')  then
     Result := TJson.JsonToObject<TqBitTorrentsListType>('{"torrents":' + Body + '}', []);
+  // Helper
+  if (Result <> nil) and (Result.Ftorrents <> nil) then
+    for var T in Result.Ftorrents do
+       TqBitTorrentType(T)._Key :=  TqBitTorrentType(T).Fhash;
   FDuration := GetTickcount - FDuration;
 end;
 
@@ -559,6 +575,10 @@ begin
   var Body := Format('hash=%s', [Hash]);
   if (qBPost('/torrents/trackers', Body) = 200) and (Body <> '')  then
     Result := TJson.JsonToObject<TqBitTrackersType>('{"trackers":' + Body + '}', []);
+  // Helper
+  if (Result <> nil) and (Result.Ftrackers <> nil) then
+    for var T in Result.Ftrackers do
+       TqBitTrackerType(T)._Key :=  string(TqBitTrackerType(T).Ftier) + '|' + TqBitTrackerType(T).Furl;
   FDuration := GetTickcount - FDuration;
 end;
 
@@ -615,7 +635,7 @@ end;
 function TqBitAPI.DeleteTorrents(Hashes: string; DeleteFiles: boolean = False): boolean;
 begin
   FDuration := GetTickCount;
-  var Body := Format('hashes=%s&deleteFiles=%s', [Hashes, BLStr[DeleteFiles]]);
+  var Body := Format('hashes=%s&deleteFiles=%s', [Hashes, BStr[DeleteFiles]]);
   Result := qBPost('/torrents/delete', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
@@ -855,7 +875,7 @@ end;
 function TqBitAPI.SetAutomaticTorrentManagement(Hashes: string; Enable: boolean): boolean;
 begin
   FDuration := GetTickCount;
-  var Body := Format('hashes=%s&enable=%s', [Hashes, BLStr[Enable]]);
+  var Body := Format('hashes=%s&enable=%s', [Hashes, BStr[Enable]]);
   Result := qBPost('/torrents/setAutoManagement', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
@@ -879,7 +899,7 @@ end;
 function TqBitAPI.SetForceStart(Hashes: string; value: boolean): boolean;
 begin
   FDuration := GetTickCount;
-  var Body := Format('hashes=%s&value=%s', [Hashes, BLStr[Value]]);
+  var Body := Format('hashes=%s&value=%s', [Hashes, BStr[Value]]);
   Result := qBPost('/torrents/setForceStart', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
@@ -887,7 +907,7 @@ end;
 function TqBitAPI.SetSuperSeeding(Hashes: string; value: boolean): boolean;
 begin
   FDuration := GetTickCount;
-  var Body := Format('hashes=%s&value=%s', [Hashes, BLStr[Value]]);
+  var Body := Format('hashes=%s&value=%s', [Hashes, BStr[Value]]);
   Result := qBPost('/torrents/setSuperSeeding', Body) = 200;
   FDuration := GetTickcount - FDuration;
 end;
@@ -940,7 +960,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(BLStr[NewTorrentUrls.FautoTMM]);
+    SS.WriteString(BStr[NewTorrentUrls.FautoTMM]);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -980,7 +1000,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(BLStr[NewTorrentUrls.Fpaused]);
+    SS.WriteString(BStr[NewTorrentUrls.Fpaused]);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -988,7 +1008,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(BLStr[NewTorrentUrls.Fskip_Checking]);
+    SS.WriteString(BStr[NewTorrentUrls.Fskip_Checking]);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -1004,7 +1024,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(BLStr[NewTorrentUrls.FsequentialDownload]);
+    SS.WriteString(BStr[NewTorrentUrls.FsequentialDownload]);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -1012,7 +1032,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(BLStr[NewTorrentUrls.FfirstLastPiecePrio]);
+    SS.WriteString(BStr[NewTorrentUrls.FfirstLastPiecePrio]);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -1075,7 +1095,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(BLStr[NewTorrentFile.FautoTMM]);
+    SS.WriteString(BStr[NewTorrentFile.FautoTMM]);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -1107,7 +1127,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(BLStr[NewTorrentFile.Fpaused]);
+    SS.WriteString(BStr[NewTorrentFile.Fpaused]);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -1115,7 +1135,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(BLStr[NewTorrentFile.Fskip_Checking]);
+    SS.WriteString(BStr[NewTorrentFile.Fskip_Checking]);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -1131,7 +1151,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(BLStr[NewTorrentFile.FsequentialDownload]);
+    SS.WriteString(BStr[NewTorrentFile.FsequentialDownload]);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -1139,7 +1159,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(BLStr[NewTorrentFile.FfirstLastPiecePrio]);
+    SS.WriteString(BStr[NewTorrentFile.FfirstLastPiecePrio]);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -1204,7 +1224,7 @@ function TqBitAPI.RSSGetAllItems(WithData: boolean): TqBitRSSAllItemsType;
 begin
   FDuration := GetTickCount;
   Result := nil;
-  var Body :=   Format('withData=%s', [TqBitAPIUtils.URLEncode(BLStr[WithData])]);
+  var Body :=   Format('withData=%s', [TqBitAPIUtils.URLEncode(BStr[WithData])]);
   if (qBPost('/rss/items', Body) = 200) and (Body <> '')  then
     Result := TJson.JsonToObject<TqBitRSSAllItemsType>('{"items":' + Body + '}', []);
   FDuration := GetTickcount - FDuration;
@@ -1263,13 +1283,13 @@ begin
   FDuration := GetTickcount - FDuration;
 end;
 
-function TqBitAPI.RSSGetMatchingArticles(RuleName: string): TqBitRSSArticles;
+function TqBitAPI.RSSGetMatchingArticles(RuleName: string): TqBitRSSArticlesType;
 begin
   FDuration := GetTickCount;
   Result := nil;
   var Body := Format('ruleName=%s', [TqBitAPIUtils.URLEncode(RuleName)]);
   if (qBPost('/rss/matchingArticles', Body) = 200) and (Body <> '')  then
-    Result := TJson.JsonToObject<TqBitRSSArticles>('{"articles":' + Body + '}', []);
+    Result := TJson.JsonToObject<TqBitRSSArticlesType>('{"articles":' + Body + '}', []);
   FDuration := GetTickcount - FDuration
 end;
 

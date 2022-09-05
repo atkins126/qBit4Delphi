@@ -14,9 +14,7 @@ uses  System.Generics.Collections, REST.JsonReflect, system.JSON, REST.Json.Type
       System.Generics.Defaults, Classes;
 
 const
-  BLStr: array[boolean] of string = ('false','true');
-  BTStr: array[boolean] of string = ('False','True');
-  BUStr: array[boolean] of string = ('FALSE','TRUE');
+  BStr: array[boolean] of string = ('false','true');
 
 type
 
@@ -32,11 +30,14 @@ type
     class procedure MergerVariants(var Src: Variant; Dst, Def: Variant); inline;
     // StringList
     class function  DelimStringList(StringList: TStringList; Delimiter: Char = '|'; DelimitedText: string = ''): TStringList;
-
+    // Exception
+    class procedure RaiseException(Msg: string);
   end;
 
 implementation
-uses RTTI, System.Net.URLClient, Variants;
+uses
+  {$IFDEF DEBUG} {$IF not DECLARED(FireMonkeyVersion)} vcl.Clipbrd, {$ENDIF} {$ENDIF}
+  RTTI, System.Net.URLClient, Variants, SysUtils;
 
 class function TqBitAPIUtils.URLEncode(Url: string): string;
 begin
@@ -80,6 +81,12 @@ begin
   Result.Delimiter := Delimiter;
   Result.QuoteChar := #0;
   Result.DelimitedText := DelimitedText;;
+end;
+
+class procedure TqBitAPIUtils.RaiseException(Msg: string);
+begin
+  {$IFDEF DEBUG} {$IF not DECLARED(FireMonkeyVersion)} Clipboard.AsText := msg; {$ENDIF} {$ENDIF}
+  raise Exception.Create(Msg);
 end;
 
 end.
